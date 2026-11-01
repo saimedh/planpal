@@ -405,10 +405,10 @@ export default function DeveloperBackendPage() {
                 <Cpu className="w-4 h-4 text-[#F2A900]" />
               </div>
               <div className="font-heading font-black text-xl text-[#1C1530] dark:text-[#FBF9FF]">
-                Claude Sonnet 4
+                Google Gemini 2.5 Flash
               </div>
               <p className="text-xs text-[#62596F] dark:text-[#C9BEDB]">
-                Model: <code className="text-[#C2185B] dark:text-[#F66DA5]">claude-sonnet-4-20250514</code>
+                Key: <code className="text-[#C2185B] dark:text-[#F66DA5]">AQ.Ab8RN6... (Active)</code>
               </p>
             </div>
           </div>
@@ -422,7 +422,7 @@ export default function DeveloperBackendPage() {
                 Test Chat & Plan Pipeline
               </h3>
               <p className="text-xs text-[#62596F] dark:text-[#C9BEDB]">
-                Sends your prompt through Claude Sonnet with Indian cultural system prompts and validates against the strict Zod Plan schema.
+                Sends your prompt through Google Gemini 2.5 Flash (with Claude fallback) with Indian cultural system prompts and validates against the strict Zod Plan schema.
               </p>
 
               <div className="flex gap-2">

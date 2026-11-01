@@ -3,7 +3,7 @@ import { ChatInputSchema } from "@/lib/schemas/api";
 import { createClient } from "@/lib/supabase/server";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { buildSystemPrompt } from "@/lib/ai/system-prompt";
-import { callClaudeWithRetry } from "@/lib/ai/claude";
+import { generatePlan } from "@/lib/ai/planner";
 import { Plan } from "@/lib/schemas/plan";
 import { dbService } from "@/lib/db";
 
@@ -80,8 +80,8 @@ export async function POST(req: NextRequest) {
     // 4. Save user message in DB
     await dbService.saveMessage(eventId, "user", message);
 
-    // 5. Call Claude with validation and retry
-    const aiResponse = await callClaudeWithRetry(
+    // 5. Generate plan using Gemini (or Claude) with validation and retry
+    const aiResponse = await generatePlan(
       {
         systemPrompt,
         messages: conversationHistory,

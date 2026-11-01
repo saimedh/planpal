@@ -83,6 +83,11 @@ export async function POST(req: NextRequest) {
     // 4. Save user message in DB
     await dbService.saveMessage(eventId, "user", message);
 
+    const geminiKey =
+      process.env.GEMINI_API_KEY ||
+      process.env.NEXT_PUBLIC_GEMINI_API_KEY ||
+      "";
+
     const hasRealAnthropicKey =
       process.env.ANTHROPIC_API_KEY &&
       process.env.ANTHROPIC_API_KEY !== "dummy_key_for_build" &&
@@ -99,7 +104,67 @@ export async function POST(req: NextRequest) {
         try {
           let finalResponse: ChatResponse;
 
-          if (hasRealAnthropicKey) {
+          if (geminiKey) {
+            // Google Gemini Streaming Engine
+            const geminiModel = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+            const contents = conversationHistory.map((m) => ({
+              role: m.role === "assistant" ? "model" : "user",
+              parts: [{ text: m.content }],
+            }));
+
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:streamGenerateContent?alt=sse&key=${geminiKey}`;
+            const payload = {
+              system_instruction: { parts: [{ text: systemPrompt }] },
+              contents,
+              generationConfig: {
+                responseMimeType: "application/json",
+                temperature: 0.7,
+                maxOutputTokens: 4096,
+              },
+            };
+
+            const geminiRes = await fetch(url, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload),
+            });
+
+            if (geminiRes.ok && geminiRes.body) {
+              const reader = geminiRes.body.getReader();
+              const decoder = new TextDecoder();
+              let accumulatedText = "";
+
+              while (true) {
+                const { value, done } = await reader.read();
+                if (done) break;
+
+                const chunkText = decoder.decode(value, { stream: true });
+                const lines = chunkText.split("\n");
+
+                for (const line of lines) {
+                  if (line.startsWith("data: ")) {
+                    try {
+                      const data = JSON.parse(line.slice(6));
+                      const textDelta = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                      if (textDelta) {
+                        accumulatedText += textDelta;
+                        sendEvent({ type: "token", content: textDelta });
+                      }
+                    } catch {
+                      // ignore parse errors on partial chunks
+                    }
+                  }
+                }
+              }
+
+              const rawJson = extractJson(accumulatedText);
+              const validated = ChatResponseSchema.parse(rawJson);
+              validated.plan = normalizeBudgetSplit(validated.plan);
+              finalResponse = validated;
+            } else {
+              throw new Error(`Gemini streaming request failed with status ${geminiRes.status}`);
+            }
+          } else if (hasRealAnthropicKey) {
             const anthropic = new Anthropic({
               apiKey: process.env.ANTHROPIC_API_KEY,
             });
