@@ -1,0 +1,24 @@
+{
+  "name": "PlanPal — AI Indian Event Planner",
+  "short_name": "PlanPal",
+  "description": "Plan Indian weddings, birthdays, housewarmings, and festivals with conversational AI.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FBF9FF",
+  "theme_color": "#C2185B",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
