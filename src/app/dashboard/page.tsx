@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Plus, Calendar, IndianRupee, Users, ArrowRight, Sparkles, Clock, CheckCircle2 } from "lucide-react";

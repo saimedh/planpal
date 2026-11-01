@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import React, { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { Share2, Download, Calendar, Users, MapPin, IndianRupee, Sparkles, MessageSquare, Utensils, Clock, CheckCircle2 } from "lucide-react";
